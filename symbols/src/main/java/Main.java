@@ -2,7 +2,10 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 public class Main {
@@ -67,23 +70,25 @@ public class Main {
     }
 
     public static void writeCharacterMap(Map<Character, Integer> map, OutputStream outStream) {
-        try (BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(outStream))) {
-            int charCount = map.values().stream()
-                    .mapToInt(Integer::intValue)
-                    .sum();
+        int charCount = map.values().stream()
+                .mapToInt(Integer::intValue)
+                .sum();
 
-            DecimalFormat outputFormat = new DecimalFormat("##.##");
+        if (charCount > 0) {
+            try (BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(outStream))) {
+                DecimalFormat outputFormat = new DecimalFormat("##.##");
 
-            for (Map.Entry<Character, Integer> entry : map.entrySet()) {
-                double percent = (double) entry.getValue() / charCount * 100;
+                for (Map.Entry<Character, Integer> entry : map.entrySet()) {
+                    double percent = (double) entry.getValue() / charCount * 100;
 
-                bufferedWriter.write(entry.getKey() + " (" +
-                        outputFormat.format(percent) + "%): " +
-                        makeBarChart((int) Math.round(percent), "#") +
-                        System.lineSeparator());
+                    bufferedWriter.write(entry.getKey() + " (" +
+                            outputFormat.format(percent) + "%): " +
+                            makeBarChart((int) Math.round(percent), "#") +
+                            System.lineSeparator());
+                }
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
             }
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
         }
     }
 
