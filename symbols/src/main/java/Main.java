@@ -8,20 +8,21 @@ public class Main {
             System.exit(0);
         }
 
-        List<String> strings = getStringsFromFile(args[0]);
-        if (strings.isEmpty()) {
-            System.out.println("Файл пустой!");
-            System.exit(0);
-        }
-
-        Map<Character, Integer> map = getCharacterMap(strings);
-        if (map.isEmpty()) {
-            System.exit(0);
-        }
-
         try {
-            writeCharacterMap(map, new FileOutputStream(args[1]));
-        } catch (FileNotFoundException e) {
+            List<String> strings = getStrings(new FileInputStream(args[0]));
+//            List<String> strings = Files.lines(Paths.get(args[0])).collect(Collectors.toList());
+            if (strings.isEmpty()) {
+                System.out.println("Файл пустой!");
+                System.exit(0);
+            }
+
+            Map<Character, Integer> map = getCharacterMap(strings);
+            if (map.isEmpty()) {
+                System.exit(0);
+            }
+
+            writeCharacterMap(map, System.out/*new FileOutputStream(args[1])*/);
+        } catch (IOException e) {
             System.out.println(e.getMessage());
         }
     }
@@ -44,12 +45,12 @@ public class Main {
         return true;
     }
 
-    public static List<String> getStringsFromFile(String fileName) {
+    public static List<String> getStrings(InputStream inputStream) {
         List<String> strings = new ArrayList<>();
 
-        try (BufferedReader bufferFromFile = new BufferedReader(new InputStreamReader(new FileInputStream(fileName)))) {
-            while (bufferFromFile.ready()) {
-                strings.add(bufferFromFile.readLine());
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+            while (reader.ready()) {
+                strings.add(reader.readLine());
             }
         } catch (IOException e) {
             System.out.println(e.getMessage());
