@@ -1,0 +1,11 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="Probation:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/Probation_jar</output-path>
+    <root id="archive" name="Probation.jar">
+      <element id="module-output" name="Probation" />
+      <element id="module-output" name="symbols" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/commons-cli/commons-cli/1.4/commons-cli-1.4.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/log4j/log4j/1.2.17/log4j-1.2.17.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>

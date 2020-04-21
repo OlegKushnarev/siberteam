@@ -1,0 +1,13 @@
+ru/siberteam/barchar/TextBarChart.class
+ru/siberteam/calculators/BarChartCalculator.class
+ru/siberteam/text/FileText.class
+ru/siberteam/calculators/PercentCalculator.class
+ru/siberteam/statistics/CharacterStatistics.class
+ru/siberteam/exception/NoResultException.class
+ru/siberteam/text/Text.class
+ru/siberteam/printer/FilePrinter.class
+ru/siberteam/barchar/BarChart.class
+ru/siberteam/printer/Printer.class
+ru/siberteam/calculators/Calculator.class
+ru/siberteam/calculators/CharacterCalculator.class
+ru/siberteam/Main.class
