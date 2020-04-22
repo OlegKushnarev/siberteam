@@ -1,4 +1,4 @@
 out/
 .idea/
-/symbols/target
+symbols/target/
 *.iml
