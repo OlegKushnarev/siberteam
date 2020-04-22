@@ -1,11 +1,7 @@
 package ru.siberteam;
 
 import org.apache.commons.cli.*;
-import ru.siberteam.printer.FilePrinter;
-import ru.siberteam.printer.Printer;
 import ru.siberteam.statistics.CharacterStatistics;
-import ru.siberteam.text.FileText;
-import ru.siberteam.text.Text;
 
 public class Main {
     public static void main(String[] args) {
@@ -30,9 +26,7 @@ public class Main {
             System.exit(0);
         }
 
-        Text text = new FileText(inputFileName);
-        Text statisticsText = new CharacterStatistics(text);
-        Printer printer = new FilePrinter(statisticsText, outputFileName);
-        printer.print();
+        CharacterStatistics characterStatistics = new CharacterStatistics(inputFileName);
+        characterStatistics.writeToFile(outputFileName);
     }
 }
