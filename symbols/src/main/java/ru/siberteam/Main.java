@@ -1,7 +1,7 @@
 package ru.siberteam;
 
 import org.apache.commons.cli.*;
-import ru.siberteam.statistics.CharacterStatistics;
+import ru.siberteam.statistic.TextStatistic;
 
 public class Main {
     public static void main(String[] args) {
@@ -26,7 +26,8 @@ public class Main {
             System.exit(0);
         }
 
-        CharacterStatistics characterStatistics = new CharacterStatistics(inputFileName);
-        characterStatistics.writeToFile(outputFileName);
+        TextStatistic textStatistic = new TextStatistic(inputFileName);
+        textStatistic.setPercentFormat("##.#", '.');
+        textStatistic.writeToFile(outputFileName);
     }
 }
