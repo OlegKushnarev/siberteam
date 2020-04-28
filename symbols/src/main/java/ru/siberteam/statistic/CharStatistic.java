@@ -1,11 +1,6 @@
 package ru.siberteam.statistic;
 
-import java.text.DecimalFormat;
-import java.util.stream.Stream;
-
-public class CharStatistic {
-    private static DecimalFormat percentOutputFormat = new DecimalFormat("##.#");
-
+public class CharStatistic implements Comparable<CharStatistic> {
     private final char ch;
     private final int number;
     private final double percent;
@@ -16,26 +11,20 @@ public class CharStatistic {
         this.percent = percent;
     }
 
-    public static void setPercentOutputFormat(DecimalFormat outputFormat) {
-        percentOutputFormat = outputFormat;
+    public char getCh() {
+        return ch;
     }
 
     public int getNumber() {
         return number;
     }
 
-    private String makeBarChart(int count, String symbol) {
-        return Stream.of(new StringBuilder()).peek((s) -> {
-            for (int i = 0; i < count; ++i) {
-                s.append(symbol);
-            }
-        }).findFirst().get().toString();
+    public double getPercent() {
+        return percent;
     }
 
     @Override
-    public String toString() {
-        return this.ch +
-                " (" + percentOutputFormat.format(this.percent) + "%) " +
-                this.makeBarChart((int) Math.round(this.percent), "#");
+    public int compareTo(CharStatistic o) {
+        return o.number - this.number;
     }
 }
