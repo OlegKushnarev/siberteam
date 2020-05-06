@@ -16,11 +16,10 @@ import java.util.stream.Stream;
 
 public class TextStatistic {
     private static final Logger LOG = LogManager.getLogger(TextStatistic.class);
+
     private List<CharStatistic> charStatisticList;
 
     private final DecimalFormat outputFormat;
-
-    private Comparator<CharStatistic> sortMode = CharStatistic::compareTo;
 
     public TextStatistic() {
         DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.getDefault());
@@ -28,9 +27,9 @@ public class TextStatistic {
         this.outputFormat = new DecimalFormat("##.##", otherSymbols);
     }
 
-    public void collectCharStatistic(String fileName) {
+    public void collectCharStatistic(String fileName, Comparator<CharStatistic> sortMode) {
         Map<Character, Integer> charMap = this.characterMapFromFile(fileName);
-        this.charStatisticList = new ArrayList<>();
+        charStatisticList = new ArrayList<>();
 
         if (charMap.isEmpty()) {
             LOG.error("The file {} is empty or no valid characters!", fileName);
@@ -44,15 +43,11 @@ public class TextStatistic {
             LOG.error("Failed to count the number of characters in the file {}", fileName);
             return;
         }
-        this.charStatisticList = charMap.entrySet().stream()
+        charStatisticList = charMap.entrySet().stream()
                 .map(entry -> new CharStatistic(entry.getKey(), entry.getValue(),
                         (double) entry.getValue() / numberChars * 100))
-                .sorted(this.sortMode)
+                .sorted(sortMode)
                 .collect(Collectors.toList());
-    }
-
-    public void setSortMode(Comparator<CharStatistic> sortMode) {
-        this.sortMode = sortMode;
     }
 
     private Map<Character, Integer> characterMapFromFile(String fileName) {
@@ -73,27 +68,25 @@ public class TextStatistic {
 
     private String makeBarChart(int count, String chartBarString) {
         return IntStream.range(0, count)
-                .collect(StringBuilder::new,
-                        (sb, i) -> sb.append(chartBarString),
-                        StringBuilder::append
-                ).toString();
+                .mapToObj(i->chartBarString)
+                .collect(Collectors.joining());
     }
 
     private String makeString(CharStatistic charStatistic) {
         return charStatistic.getCh() +
-                " (" + this.outputFormat.format(charStatistic.getPercent()) + "%) " +
+                " (" + outputFormat.format(charStatistic.getPercent()) + "%) " +
                 this.makeBarChart((int) Math.round(charStatistic.getPercent()), "#");
     }
 
     public void writeToFile(String fileName, int outputLimitation) {
-        if (this.charStatisticList.isEmpty()) {
+        if (charStatisticList.isEmpty()) {
             LOG.error("No data to record");
             return;
         }
         try {
-            List<String> lines = this.charStatisticList.stream()
+            List<String> lines = charStatisticList.stream()
                     .map(this::makeString)
-                    .limit(outputLimitation > 0 ? outputLimitation : this.charStatisticList.size())
+                    .limit(outputLimitation > 0 ? outputLimitation : charStatisticList.size())
                     .collect(Collectors.toList());
             Files.write(Paths.get(fileName), lines);
         } catch (IOException e) {

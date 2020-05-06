@@ -7,28 +7,32 @@ import java.util.Comparator;
 import java.util.stream.Collectors;
 
 public enum SortMode {
-    A((o1, o2) -> o1.getNumber() - o2.getNumber(), "Use the letter \"A\" to sort ascending."),
-    D(CharStatistic::compareTo, "Use the letter \"D\" to sort descending." +
+    ASC(Comparator.reverseOrder(), "Use \"ASC\" to sort ascending."),
+    DESC(Comparator.naturalOrder(), "Use \"DESC\" to sort descending." +
             "By default, descending sorting is used.");
 
-    private final Comparator<CharStatistic> sortFunction;
+    private final Comparator<CharStatistic> sortOrder;
 
     private final String description;
 
-    public Comparator<CharStatistic> getSortFunction() {
-        return this.sortFunction;
+    public Comparator<CharStatistic> getSortOrder() {
+        return this.sortOrder;
     }
 
     public static String description() {
         return Arrays.stream(SortMode.values())
-                .map(Enum::name)
-                .map(SortMode::valueOf)
                 .map(sortMode -> sortMode.description)
                 .collect(Collectors.joining(" "));
     }
 
-    SortMode(Comparator<CharStatistic> sortFunction, String description) {
-        this.sortFunction = sortFunction;
+    public static String possibleValues() {
+        return Arrays.stream(SortMode.values())
+                .map(Enum::name)
+                .collect(Collectors.joining(" "));
+    }
+
+    SortMode(Comparator<CharStatistic> sortOrder, String description) {
+        this.sortOrder = sortOrder;
         this.description = description;
     }
 }
