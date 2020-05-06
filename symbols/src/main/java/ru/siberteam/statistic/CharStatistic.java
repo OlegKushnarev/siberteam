@@ -1,5 +1,10 @@
 package ru.siberteam.statistic;
 
+/**
+ * @apiNote This class has a natural ordering that is
+ * inconsistent with equals.
+ */
+
 public class CharStatistic implements Comparable<CharStatistic> {
     private final char ch;
     private final int number;
