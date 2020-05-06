@@ -75,7 +75,7 @@ public class TextStatistic {
     private String makeString(CharStatistic charStatistic) {
         return charStatistic.getCh() +
                 " (" + outputFormat.format(charStatistic.getPercent()) + "%) " +
-                this.makeBarChart((int) Math.round(charStatistic.getPercent()), "#");
+                makeBarChart((int) Math.round(charStatistic.getPercent()), "#");
     }
 
     public void writeToFile(String fileName, int outputLimitation) {

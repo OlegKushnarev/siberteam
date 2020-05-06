@@ -19,7 +19,7 @@ public abstract class ArgChecker {
     public boolean check(CommandLine cmd) {
         boolean canCheck = true;
         try {
-            this.checkOptionValue(cmd.getOptionValue(this.opt));
+            checkOptionValue(cmd.getOptionValue(opt));
         } catch (InvalidInputArgException e) {
             LOG.error("Invalid input args:", e);
             canCheck = false;

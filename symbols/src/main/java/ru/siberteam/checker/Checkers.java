@@ -9,7 +9,7 @@ public enum Checkers {
     private final ArgChecker checker;
 
     public ArgChecker getChecker() {
-        return this.checker;
+        return checker;
     }
 
     Checkers(ArgChecker checker) {
