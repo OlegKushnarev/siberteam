@@ -1,12 +1,12 @@
 package ru.siberteam.arg;
 
 import org.apache.commons.cli.*;
-import ru.siberteam.checker.Checkers;
+import ru.siberteam.checker.*;
 import ru.siberteam.sort.SortMode;
-import ru.siberteam.statistic.CharStatistic;
 
 import java.util.Arrays;
-import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Args {
     private final Options options = new Options();
@@ -19,8 +19,16 @@ public class Args {
         options.addOption(new Option("s", true, SortMode.description()));
     }
 
-    public boolean parser(String[] args) {
-        boolean canParse = true;
+    private Map<String, ArgChecker> mapChecker() {
+        Map<String, ArgChecker> checkerMap = new HashMap<>();
+        checkerMap.put("i", new InputFilePathChecker("i"));
+        checkerMap.put("o", new OutputFilePathChecker("o"));
+        checkerMap.put("l", new LimitChecker("l"));
+        checkerMap.put("s", new SortModeChecker("s"));
+        return checkerMap;
+    }
+
+    public boolean parse(String[] args) {
         try {
             CommandLineParser parser = new DefaultParser();
             cmd = parser.parse(options, args);
@@ -28,15 +36,11 @@ public class Args {
             HelpFormatter formatter = new HelpFormatter();
             formatter.printHelp(this.getClass().getName(), " ", options,
                     System.lineSeparator() + e.getMessage(), true);
-            canParse = false;
+            return false;
         }
-        return canParse;
-    }
-
-    public boolean checkArgs() {
+        Map<String, ArgChecker> checkerMap = mapChecker();
         return Arrays.stream(cmd.getOptions())
-                .map(Option::getOpt)
-                .map(opt -> Checkers.valueOf(opt.toUpperCase()).getChecker())
+                .map(option -> checkerMap.get(option.getOpt()))
                 .allMatch(checker -> checker.check(cmd));
     }
 
@@ -53,8 +57,8 @@ public class Args {
         return Integer.parseInt(value);
     }
 
-    public Comparator<CharStatistic> getSortMode() {
+    public SortMode getSortMode() {
         String value = cmd.getOptionValue("s", "desc");
-        return SortMode.valueOf(value.toUpperCase()).getSortOrder();
+        return SortMode.valueOf(value.toUpperCase());
     }
 }

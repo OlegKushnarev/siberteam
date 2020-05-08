@@ -2,6 +2,7 @@ package ru.siberteam.statistic;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import ru.siberteam.sort.SortMode;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -24,11 +25,11 @@ public class TextStatistic {
     public TextStatistic() {
         DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.getDefault());
         otherSymbols.setDecimalSeparator('.');
-        this.outputFormat = new DecimalFormat("##.##", otherSymbols);
+        outputFormat = new DecimalFormat("##.##", otherSymbols);
     }
 
-    public void collectCharStatistic(String fileName, Comparator<CharStatistic> sortMode) {
-        Map<Character, Integer> charMap = this.characterMapFromFile(fileName);
+    public void collectCharStatistic(String fileName, SortMode sortMode) throws IOException {
+        Map<Character, Integer> charMap = characterMapFromFile(fileName);
         charStatisticList = new ArrayList<>();
 
         if (charMap.isEmpty()) {
@@ -39,31 +40,21 @@ public class TextStatistic {
                 .mapToInt(Integer::intValue)
                 .sum();
 
-        if (numberChars <= 0) {
-            LOG.error("Failed to count the number of characters in the file {}", fileName);
-            return;
-        }
+        CharStatisticFactory statisticFactory = new CharStatisticFactory(numberChars);
         charStatisticList = charMap.entrySet().stream()
-                .map(entry -> new CharStatistic(entry.getKey(), entry.getValue(),
-                        (double) entry.getValue() / numberChars * 100))
-                .sorted(sortMode)
+                .map(statisticFactory::createCharStatistic)
+                .sorted((Comparator<CharStatistic>) sortMode.getSortOrder())
                 .collect(Collectors.toList());
     }
 
-    private Map<Character, Integer> characterMapFromFile(String fileName) {
-        Map<Character, Integer> charMap;
+    private Map<Character, Integer> characterMapFromFile(String fileName) throws IOException {
         try (Stream<String> stringStream = Files.lines(Paths.get(fileName))) {
-            charMap = stringStream
+            return stringStream
                     .flatMapToInt(String::codePoints)
                     .filter(Character::isLetterOrDigit)
                     .mapToObj(i -> (char) i)
                     .collect(Collectors.toMap(Function.identity(), ch -> 1, Integer::sum));
-
-        } catch (IOException e) {
-            LOG.error("Unsuccessful attempt to read a file:", e);
-            charMap = new HashMap<>();
         }
-        return charMap;
     }
 
     private String makeBarChart(int count, String chartBarString) {
@@ -78,19 +69,16 @@ public class TextStatistic {
                 makeBarChart((int) Math.round(charStatistic.getPercent()), "#");
     }
 
-    public void writeToFile(String fileName, int outputLimitation) {
+    public void writeToFile(String fileName, int outputLimitation) throws IOException {
         if (charStatisticList.isEmpty()) {
             LOG.error("No data to record");
             return;
         }
-        try {
-            List<String> lines = charStatisticList.stream()
-                    .map(this::makeString)
-                    .limit(outputLimitation > 0 ? outputLimitation : charStatisticList.size())
-                    .collect(Collectors.toList());
-            Files.write(Paths.get(fileName), lines);
-        } catch (IOException e) {
-            LOG.error("Unsuccessful attempt to write to file:", e);
-        }
+
+        List<String> lines = charStatisticList.stream()
+                .map(this::makeString)
+                .limit(outputLimitation > 0 ? outputLimitation : charStatisticList.size())
+                .collect(Collectors.toList());
+        Files.write(Paths.get(fileName), lines);
     }
 }

@@ -17,13 +17,12 @@ public abstract class ArgChecker {
     protected abstract void checkOptionValue(String optionValue) throws InvalidInputArgException;
 
     public boolean check(CommandLine cmd) {
-        boolean canCheck = true;
         try {
             checkOptionValue(cmd.getOptionValue(opt));
         } catch (InvalidInputArgException e) {
             LOG.error("Invalid input args:", e);
-            canCheck = false;
+            return false;
         }
-        return canCheck;
+        return true;
     }
 }
