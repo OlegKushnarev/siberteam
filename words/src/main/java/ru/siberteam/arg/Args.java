@@ -23,7 +23,15 @@ public class Args {
     public Args() {
         options.addRequiredOption("i", "inputFile", true, "Input file name");
         options.addRequiredOption("o", "outputFile", true, "Output file name");
-        options.addRequiredOption("c", "className", true, "The full qualified Java class name");
+        options.addRequiredOption("c", "className", true, sortDescription());
+    }
+
+    private String sortDescription() {
+        return "Use \"ru.siberteam.sorter.AlphabeticalSorter\" to sort alphabetically." + System.lineSeparator() +
+                "Use \"ru.siberteam.sorter.AlphabeticalInvertedWordSorter\" to sort alphabetically inverted words." + System.lineSeparator() +
+                "Use \"ru.siberteam.sorter.FirstLetterSorter\" to sort words by first letter (vowel or consonant)." + System.lineSeparator() +
+                "Use \"ru.siberteam.sorter.VowelNumberSorter\" to sort  words by the number of vowels in a word." + System.lineSeparator() +
+                "Use \"ru.siberteam.sorter.WordLengthSorter\" to sort by word length.";
     }
 
     private Map<String, ArgChecker> mapChecker() {
@@ -63,6 +71,7 @@ public class Args {
         try {
             Class<?> clazz = Class.forName(cmd.getOptionValue("c"));
             Constructor<?> nativeConstructor = clazz.getDeclaredConstructor();
+            sortDescription();
             return (Sorter) nativeConstructor.newInstance();
         } catch (ClassNotFoundException | NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
             LOG.error("The specified class {} object cannot be instantiated.", cmd.getOptionValue("c"), e);
