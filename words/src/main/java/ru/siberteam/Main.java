@@ -18,15 +18,14 @@ public class Main {
         if (!programArgs.parse(args)) {
             System.exit(0);
         }
-        Sorter sorter = programArgs.getSorter();
-        if (sorter == null) {
-            System.exit(0);
-        }
         try (Stream<String> stringStream = Files.lines(Paths.get(programArgs.getInputFile()))) {
+            Sorter sorter = programArgs.getSorter();
             Stream<String> strStream = sorter.sortWords(stringStream);
             Files.write(Paths.get(programArgs.getOutputFile()), (Iterable<String>) strStream::iterator);
         } catch (IOException e) {
             LOG.error("Error working with file!", e);
+        } catch (ReflectiveOperationException e) {
+            LOG.error("The specified class object cannot be instantiated.", e);
         }
     }
 }

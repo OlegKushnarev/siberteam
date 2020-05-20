@@ -1,8 +1,8 @@
 package ru.siberteam.arg;
 
 import org.apache.commons.cli.*;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.reflections.Reflections;
+import org.reflections.scanners.SubTypesScanner;
 import ru.siberteam.checker.ArgChecker;
 import ru.siberteam.checker.ClassNameChecker;
 import ru.siberteam.checker.InputFilePathChecker;
@@ -10,13 +10,13 @@ import ru.siberteam.checker.OutputFilePathChecker;
 import ru.siberteam.sorter.Sorter;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class Args {
-    private static final Logger LOG = LogManager.getLogger(Args.class);
     private final Options options = new Options();
     private CommandLine cmd;
 
@@ -26,12 +26,27 @@ public class Args {
         options.addRequiredOption("c", "className", true, sortDescription());
     }
 
+    private Sorter createSorter(Class<?> clazz) throws ReflectiveOperationException {
+        Constructor<?> nativeConstructor = clazz.getDeclaredConstructor();
+        return (Sorter) nativeConstructor.newInstance();
+    }
+
+    private Sorter sorter(Class<? extends Sorter> clazz) {
+        try {
+            return createSorter(clazz);
+        } catch (ReflectiveOperationException e) {
+            return null;
+        }
+    }
+
     private String sortDescription() {
-        return "Use \"ru.siberteam.sorter.AlphabeticalSorter\" to sort alphabetically." + System.lineSeparator() +
-                "Use \"ru.siberteam.sorter.AlphabeticalInvertedWordSorter\" to sort alphabetically inverted words." + System.lineSeparator() +
-                "Use \"ru.siberteam.sorter.FirstLetterSorter\" to sort words by first letter (vowel or consonant)." + System.lineSeparator() +
-                "Use \"ru.siberteam.sorter.VowelNumberSorter\" to sort  words by the number of vowels in a word." + System.lineSeparator() +
-                "Use \"ru.siberteam.sorter.WordLengthSorter\" to sort by word length.";
+        return new Reflections("ru.siberteam.sorter", new SubTypesScanner(false))
+                .getSubTypesOf(Sorter.class)
+                .stream()
+                .map(this::sorter)
+                .filter(Objects::nonNull)
+                .map(Sorter::sortDescription)
+                .collect(Collectors.joining(" "));
     }
 
     private Map<String, ArgChecker> mapChecker() {
@@ -48,7 +63,7 @@ public class Args {
             cmd = parser.parse(options, args);
         } catch (ParseException e) {
             HelpFormatter formatter = new HelpFormatter();
-            formatter.printHelp(this.getClass().getName(), " ", options,
+            formatter.printHelp(100, this.getClass().getName(), " ", options,
                     System.lineSeparator() + e.getMessage(), true);
             return false;
         }
@@ -67,15 +82,8 @@ public class Args {
         return cmd.getOptionValue("o");
     }
 
-    public Sorter getSorter() {
-        try {
-            Class<?> clazz = Class.forName(cmd.getOptionValue("c"));
-            Constructor<?> nativeConstructor = clazz.getDeclaredConstructor();
-            sortDescription();
-            return (Sorter) nativeConstructor.newInstance();
-        } catch (ClassNotFoundException | NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            LOG.error("The specified class {} object cannot be instantiated.", cmd.getOptionValue("c"), e);
-            return null;
-        }
+    public Sorter getSorter() throws ReflectiveOperationException {
+        Class<?> clazz = Class.forName(cmd.getOptionValue("c"));
+        return createSorter(clazz);
     }
 }

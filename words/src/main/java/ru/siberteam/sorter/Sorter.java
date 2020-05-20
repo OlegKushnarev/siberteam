@@ -6,7 +6,9 @@ import java.util.stream.Stream;
 public abstract class Sorter {
     protected abstract Stream<String> sort(Stream<String> stringStream);
 
-    private boolean thisWord(String str) {
+    public abstract String sortDescription();
+
+    private boolean isWord(String str) {
         return str
                 .codePoints()
                 .mapToObj(i -> (char) i)
@@ -16,7 +18,8 @@ public abstract class Sorter {
     public Stream<String> sortWords(Stream<String> stringStream) {
         Stream<String> strStream = stringStream
                 .flatMap(str -> Arrays.stream(str.split(" ")))
-                .filter(this::thisWord);
+                .distinct()
+                .filter(str -> this.isWord(str) && !str.isEmpty());
         return sort(strStream);
     }
 }

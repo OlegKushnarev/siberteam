@@ -9,4 +9,9 @@ public class WordLengthSorter extends Sorter {
         return stringStream
                 .sorted(Comparator.comparing(String::length));
     }
+
+    @Override
+    public String sortDescription() {
+        return "Use " + this.getClass().getName() + " to sort by word length." + System.lineSeparator();
+    }
 }

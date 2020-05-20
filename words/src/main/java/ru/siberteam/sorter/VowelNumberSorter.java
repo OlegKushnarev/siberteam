@@ -22,4 +22,9 @@ public class VowelNumberSorter extends Sorter {
         return stringStream
                 .sorted(Comparator.comparing(this::getVowelCount));
     }
+
+    @Override
+    public String sortDescription() {
+        return "Use " + this.getClass().getName() + " to sort words by the number of vowels in a word." + System.lineSeparator();
+    }
 }

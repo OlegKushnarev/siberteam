@@ -14,10 +14,9 @@ public class AlphabeticalInvertedWordSorterTest {
     @Test
     public void testSort() {
         List<String> expected = Arrays.asList("deificeps", "elppa", "gge", "kcuRt", "nus", "oLleH", "rehtaf", "rehtom",
-                "rehtom", "tekcor", "Ymam", "маМ", "тоне");
+                "tekcor", "Ymam", "маМ", "тоне");
         Stream<String> strStream = Stream.of("sun HelLo", "mother apple specified", "father енот", "mother tRuck",
-                "mamY !@2:$$* egg", "rocket Мам", "fo%nt")
-                .flatMap(str -> Arrays.stream(str.split(" ")));
+                "mamY !@2:$$* egg", "rocket Мам", "fo%nt");
         Sorter sorter = new AlphabeticalInvertedWordSorter();
         List<String> result = sorter.sortWords(strStream)
                 .collect(Collectors.toList());

@@ -8,4 +8,9 @@ public class AlphabeticalSorter extends Sorter {
         return stringStream
                 .sorted(String::compareToIgnoreCase);
     }
+
+    @Override
+    public String sortDescription() {
+        return "Use " + this.getClass().getName() + " to sort alphabetically." + System.lineSeparator();
+    }
 }

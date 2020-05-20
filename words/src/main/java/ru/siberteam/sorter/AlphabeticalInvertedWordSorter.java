@@ -9,4 +9,9 @@ public class AlphabeticalInvertedWordSorter extends Sorter {
                 .map(str -> new StringBuilder(str).reverse().toString())
                 .sorted(String::compareToIgnoreCase);
     }
+
+    @Override
+    public String sortDescription() {
+        return "Use " + this.getClass().getName() + " to sort alphabetically inverted words." + System.lineSeparator();
+    }
 }

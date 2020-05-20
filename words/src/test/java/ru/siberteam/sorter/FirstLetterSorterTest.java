@@ -7,17 +7,16 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class FirstLetterSorterTest {
 
     @Test
     public void testSort() {
         List<String> expected = Arrays.asList("apple", "енот", "egg", "sun", "HelLo", "mother", "specified", "father",
-                "mother", "tRuck", "mamY", "rocket", "Мам");
+                "tRuck", "mamY", "rocket", "Мам");
         Stream<String> strStream = Stream.of("sun HelLo", "mother apple specified", "father енот", "mother tRuck",
-                "mamY !@2:$$* egg", "rocket Мам", "fo%nt")
-                .flatMap(str -> Arrays.stream(str.split(" ")));
+                "mamY !@2:$$* egg", "rocket Мам", "fo%nt");
         Sorter sorter = new FirstLetterSorter();
         List<String> result = sorter.sortWords(strStream)
                 .collect(Collectors.toList());

@@ -22,4 +22,9 @@ public class FirstLetterSorter extends Sorter {
         return stringStream
                 .sorted(Comparator.comparing(this::firstLetterIsVowel).reversed());
     }
+
+    @Override
+    public String sortDescription() {
+        return "Use " + this.getClass().getName() + " to sort words by first letter (vowel or consonant)." + System.lineSeparator();
+    }
 }
