@@ -1,6 +1,7 @@
 package ru.siberteam.sorter;
 
 import org.junit.Test;
+import ru.siberteam.launcher.SortLauncher;
 
 import java.util.Arrays;
 import java.util.List;
@@ -15,10 +16,10 @@ public class FirstLetterSorterTest {
     public void testSort() {
         List<String> expected = Arrays.asList("apple", "енот", "egg", "sun", "HelLo", "mother", "specified", "father",
                 "tRuck", "mamY", "rocket", "Мам");
-        Stream<String> strStream = Stream.of("sun HelLo", "mother apple specified", "father енот", "mother tRuck",
-                "mamY !@2:$$* egg", "rocket Мам", "fo%nt");
-        Sorter sorter = new FirstLetterSorter();
-        List<String> result = sorter.sortWords(strStream)
+        Stream<String> strStream = Stream.of("sun HelLo", "mother apple specified", "father енот", "mother tRuck", "",
+                "mamY !@2:$$* egg", "rocket Мам", "fo%nt Mother");
+        SortLauncher sortLauncher = new SortLauncher(new FirstLetterSorter());
+        List<String> result = sortLauncher.sortWords(strStream)
                 .collect(Collectors.toList());
 
         assertEquals(expected, result);

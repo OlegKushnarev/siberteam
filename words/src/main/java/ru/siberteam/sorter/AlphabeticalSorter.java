@@ -1,16 +1,12 @@
 package ru.siberteam.sorter;
 
-import java.util.stream.Stream;
+import ru.siberteam.description.Description;
 
-public class AlphabeticalSorter extends Sorter {
-    @Override
-    public Stream<String> sort(Stream<String> stringStream) {
-        return stringStream
-                .sorted(String::compareToIgnoreCase);
-    }
+@Description("Use ru.siberteam.sorter.AlphabeticalSorter to sort alphabetically.")
+public class AlphabeticalSorter implements Sorter {
 
     @Override
-    public String sortDescription() {
-        return "Use " + this.getClass().getName() + " to sort alphabetically." + System.lineSeparator();
+    public int comparator(String str1, String str2) {
+        return str1.compareToIgnoreCase(str2);
     }
 }

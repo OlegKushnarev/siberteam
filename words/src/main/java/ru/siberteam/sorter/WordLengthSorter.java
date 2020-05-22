@@ -1,17 +1,15 @@
 package ru.siberteam.sorter;
 
+import ru.siberteam.description.Description;
+
 import java.util.Comparator;
-import java.util.stream.Stream;
 
-public class WordLengthSorter extends Sorter {
-    @Override
-    public Stream<String> sort(Stream<String> stringStream) {
-        return stringStream
-                .sorted(Comparator.comparing(String::length));
-    }
+@Description("Use ru.siberteam.sorter.WordLengthSorter to sort by word length.")
+public class WordLengthSorter implements Sorter {
 
     @Override
-    public String sortDescription() {
-        return "Use " + this.getClass().getName() + " to sort by word length." + System.lineSeparator();
+    public int comparator(String str1, String str2) {
+        Comparator<String> strLengthComparator = Comparator.comparing(String::length);
+        return strLengthComparator.compare(str1, str2);
     }
 }

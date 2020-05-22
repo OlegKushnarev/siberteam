@@ -1,22 +1,26 @@
 package ru.siberteam.arg;
 
 import org.apache.commons.cli.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
 import ru.siberteam.checker.ArgChecker;
 import ru.siberteam.checker.ClassNameChecker;
 import ru.siberteam.checker.InputFilePathChecker;
 import ru.siberteam.checker.OutputFilePathChecker;
+import ru.siberteam.description.Description;
 import ru.siberteam.sorter.Sorter;
 
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class Args {
+    private static final Logger LOG = LogManager.getLogger(Args.class);
+
     private final Options options = new Options();
     private CommandLine cmd;
 
@@ -26,27 +30,13 @@ public class Args {
         options.addRequiredOption("c", "className", true, sortDescription());
     }
 
-    private Sorter createSorter(Class<?> clazz) throws ReflectiveOperationException {
-        Constructor<?> nativeConstructor = clazz.getDeclaredConstructor();
-        return (Sorter) nativeConstructor.newInstance();
-    }
-
-    private Sorter sorter(Class<? extends Sorter> clazz) {
-        try {
-            return createSorter(clazz);
-        } catch (ReflectiveOperationException e) {
-            return null;
-        }
-    }
-
     private String sortDescription() {
         return new Reflections("ru.siberteam.sorter", new SubTypesScanner(false))
                 .getSubTypesOf(Sorter.class)
                 .stream()
-                .map(this::sorter)
-                .filter(Objects::nonNull)
-                .map(Sorter::sortDescription)
-                .collect(Collectors.joining(" "));
+                .filter(clazz -> clazz.isAnnotationPresent(Description.class))
+                .map(clazz -> clazz.getAnnotation(Description.class).value())
+                .collect(Collectors.joining(System.lineSeparator()));
     }
 
     private Map<String, ArgChecker> mapChecker() {
@@ -82,8 +72,14 @@ public class Args {
         return cmd.getOptionValue("o");
     }
 
-    public Sorter getSorter() throws ReflectiveOperationException {
-        Class<?> clazz = Class.forName(cmd.getOptionValue("c"));
-        return createSorter(clazz);
+    public Sorter getSorter() {
+        try {
+            Class<?> clazz = Class.forName(cmd.getOptionValue("c"));
+            Constructor<?> nativeConstructor = clazz.getDeclaredConstructor();
+            return (Sorter) nativeConstructor.newInstance();
+        } catch (ReflectiveOperationException e) {
+            LOG.error("The specified class {} object cannot be instantiated.", cmd.getOptionValue("c"), e);
+            throw new IllegalStateException(e);
+        }
     }
 }
