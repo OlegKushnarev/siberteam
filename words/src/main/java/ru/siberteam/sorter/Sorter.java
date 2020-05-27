@@ -1,13 +1,10 @@
 package ru.siberteam.sorter;
 
 public interface Sorter {
-    default boolean predicate(String str) {
-        return true;
-    }
 
-    default String mapper(String str) {
+    default String transform(String str) {
         return str;
     }
 
-    int comparator(String str1, String str2);
+    int compare(String str1, String str2);
 }

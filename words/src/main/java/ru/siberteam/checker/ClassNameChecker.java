@@ -8,11 +8,11 @@ public class ClassNameChecker extends ArgChecker {
     }
 
     @Override
-    protected void checkOptionValue(String optionValue) throws InvalidInputArgException {
+    protected void checkOptionValue(String className) throws InvalidInputArgException {
         try {
-            Class.forName(optionValue);
+            Class.forName(className);
         } catch (ClassNotFoundException e) {
-            throw new InvalidInputArgException("Class " + optionValue + " not found", e);
+            throw new InvalidInputArgException("Class " + className + " not found", e);
         }
     }
 }

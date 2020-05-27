@@ -8,7 +8,7 @@ import java.util.Comparator;
 public class WordLengthSorter implements Sorter {
 
     @Override
-    public int comparator(String str1, String str2) {
+    public int compare(String str1, String str2) {
         Comparator<String> strLengthComparator = Comparator.comparing(String::length);
         return strLengthComparator.compare(str1, str2);
     }

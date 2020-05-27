@@ -6,7 +6,7 @@ import ru.siberteam.description.Description;
 public class AlphabeticalSorter implements Sorter {
 
     @Override
-    public int comparator(String str1, String str2) {
+    public int compare(String str1, String str2) {
         return str1.compareToIgnoreCase(str2);
     }
 }

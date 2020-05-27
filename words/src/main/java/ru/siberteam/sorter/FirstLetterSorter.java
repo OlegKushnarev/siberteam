@@ -20,7 +20,7 @@ public class FirstLetterSorter implements Sorter {
     }
 
     @Override
-    public int comparator(String str1, String str2) {
+    public int compare(String str1, String str2) {
         Comparator<String> firstLetterIsVowelComparator = Comparator.comparing(this::firstLetterIsVowel).reversed();
         return firstLetterIsVowelComparator.compare(str1, str2);
     }

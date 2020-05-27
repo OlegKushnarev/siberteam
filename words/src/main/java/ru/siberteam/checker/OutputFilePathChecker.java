@@ -25,6 +25,7 @@ public class OutputFilePathChecker extends ArgChecker {
         } else {
             try {
                 Files.createFile(filePath);
+                Files.delete(filePath);
             } catch (IOException e) {
                 throw new InvalidInputArgException("Cannot create the file " + optionValue, e);
             }

@@ -14,12 +14,12 @@ public class FirstLetterSorterTest {
 
     @Test
     public void testSort() {
-        List<String> expected = Arrays.asList("apple", "енот", "egg", "sun", "HelLo", "mother", "specified", "father",
-                "tRuck", "mamY", "rocket", "Мам");
+        List<String> expected = Arrays.asList("apple", "енот", "egg", "sun", "hello", "mother", "specified", "father",
+                "truck", "mamy", "rocket", "мам");
         Stream<String> strStream = Stream.of("sun HelLo", "mother apple specified", "father енот", "mother tRuck", "",
                 "mamY !@2:$$* egg", "rocket Мам", "fo%nt Mother");
         SortLauncher sortLauncher = new SortLauncher(new FirstLetterSorter());
-        List<String> result = sortLauncher.sortWords(strStream)
+        List<String> result = sortLauncher.launchSort(strStream)
                 .collect(Collectors.toList());
 
         assertEquals(expected, result);

@@ -13,10 +13,9 @@ import ru.siberteam.description.Description;
 import ru.siberteam.sorter.Sorter;
 
 import java.lang.reflect.Constructor;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Args {
     private static final Logger LOG = LogManager.getLogger(Args.class);
@@ -27,14 +26,21 @@ public class Args {
     public Args() {
         options.addRequiredOption("i", "inputFile", true, "Input file name");
         options.addRequiredOption("o", "outputFile", true, "Output file name");
-        options.addRequiredOption("c", "className", true, sortDescription());
+        OptionGroup optionGroup = new OptionGroup();
+        optionGroup.addOption(new Option("c", "className", true, sortDescription()));
+        optionGroup.addOption(new Option("a", true, "Use any value for all possible sorters"));
+        options.addOptionGroup(optionGroup);
     }
 
-    private String sortDescription() {
+    private Stream<Class<? extends Sorter>> sorterClassesStream() {
         return new Reflections("ru.siberteam.sorter", new SubTypesScanner(false))
                 .getSubTypesOf(Sorter.class)
                 .stream()
-                .filter(clazz -> clazz.isAnnotationPresent(Description.class))
+                .filter(clazz -> clazz.isAnnotationPresent(Description.class));
+    }
+
+    private String sortDescription() {
+        return sorterClassesStream()
                 .map(clazz -> clazz.getAnnotation(Description.class).value())
                 .collect(Collectors.joining(System.lineSeparator()));
     }
@@ -43,7 +49,9 @@ public class Args {
         Map<String, ArgChecker> checkerMap = new HashMap<>();
         checkerMap.put("i", new InputFilePathChecker("i"));
         checkerMap.put("o", new OutputFilePathChecker("o"));
-        checkerMap.put("c", new ClassNameChecker("c"));
+        if (cmd.hasOption("c")) {
+            checkerMap.put("c", new ClassNameChecker("c"));
+        }
         return checkerMap;
     }
 
@@ -72,14 +80,32 @@ public class Args {
         return cmd.getOptionValue("o");
     }
 
-    public Sorter getSorter() {
+    private Sorter createSorter(Class<?> clazz) {
         try {
-            Class<?> clazz = Class.forName(cmd.getOptionValue("c"));
             Constructor<?> nativeConstructor = clazz.getDeclaredConstructor();
             return (Sorter) nativeConstructor.newInstance();
         } catch (ReflectiveOperationException e) {
-            LOG.error("The specified class {} object cannot be instantiated.", cmd.getOptionValue("c"), e);
+            LOG.error("The specified class {} object cannot be instantiated.", clazz.getName(), e);
             throw new IllegalStateException(e);
         }
+    }
+
+    private Sorter getSorter() {
+        try {
+            Class<?> clazz = Class.forName(cmd.getOptionValue("c"));
+            return createSorter(clazz);
+        } catch (ClassNotFoundException e) {
+            LOG.error("The class {} not found.", cmd.getOptionValue("c"), e);
+            throw new IllegalStateException(e);
+        }
+    }
+
+    public Set<Sorter> getSorters() {
+        if (cmd.hasOption("c")) {
+            return new LinkedHashSet(Collections.singletonList(getSorter()));
+        }
+        return sorterClassesStream()
+                .map(this::createSorter)
+                .collect(Collectors.toSet());
     }
 }

@@ -20,7 +20,7 @@ public class VowelNumberSorter implements Sorter {
     }
 
     @Override
-    public int comparator(String str1, String str2) {
+    public int compare(String str1, String str2) {
         Comparator<String> vowelCountComparator = Comparator.comparing(this::getVowelCount);
         return vowelCountComparator.compare(str1, str2);
     }

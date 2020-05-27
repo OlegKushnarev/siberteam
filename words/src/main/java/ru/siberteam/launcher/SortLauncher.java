@@ -1,7 +1,6 @@
 package ru.siberteam.launcher;
 
 import ru.siberteam.sorter.Sorter;
-import ru.siberteam.word.Word;
 
 import java.util.Arrays;
 import java.util.stream.Stream;
@@ -20,17 +19,18 @@ public class SortLauncher {
                 .allMatch(Character::isLetter);
     }
 
-    public Stream<String> sortWords(Stream<String> stringStream) {
+    public Stream<String> launchSort(Stream<String> stringStream) {
         return stringStream
                 .flatMap(str -> Arrays.stream(str.split(" ")))
-                .distinct()
                 .filter(str -> !str.isEmpty())
                 .filter(this::isWord)
-                .map(Word::new)
+                .map(String::toLowerCase)
                 .distinct()
-                .map(Word::getStr)
-                .filter(sorter::predicate)
-                .map(sorter::mapper)
-                .sorted(sorter::comparator);
+                .map(sorter::transform)
+                .sorted(sorter::compare);
+    }
+
+    public String getSorterName() {
+        return sorter.getClass().getSimpleName();
     }
 }
