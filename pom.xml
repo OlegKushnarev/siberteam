@@ -20,6 +20,7 @@
     <modules>
         <module>symbols</module>
         <module>words</module>
+        <module>dictionary</module>
     </modules>
 
     <dependencies>
