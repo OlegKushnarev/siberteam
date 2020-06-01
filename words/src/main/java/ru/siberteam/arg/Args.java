@@ -28,7 +28,7 @@ public class Args {
         options.addRequiredOption("o", "outputFile", true, "Output file name");
         OptionGroup optionGroup = new OptionGroup();
         optionGroup.addOption(new Option("c", "className", true, sortDescription()));
-        optionGroup.addOption(new Option("a", true, "Use any value for all possible sorters"));
+        optionGroup.addOption(new Option("a", "Use this option for all possible sorters"));
         options.addOptionGroup(optionGroup);
     }
 
