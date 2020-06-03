@@ -29,6 +29,7 @@ public class Args {
         OptionGroup optionGroup = new OptionGroup();
         optionGroup.addOption(new Option("c", "className", true, sortDescription()));
         optionGroup.addOption(new Option("a", "Use this option for all possible sorters"));
+        optionGroup.setRequired(true);
         options.addOptionGroup(optionGroup);
     }
 

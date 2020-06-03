@@ -11,7 +11,7 @@
 
     <artifactId>dictionary</artifactId>
     <packaging>jar</packaging>
-    <name>words</name>
+    <name>dictionary</name>
     <version>1.0-SNAPSHOT</version>
 
     <build>

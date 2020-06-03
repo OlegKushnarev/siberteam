@@ -27,6 +27,11 @@ public class Sorters {
 
     private Path getOutputPath(String fileNameSuffix) {
         if (sorters.size() > 1) {
+            if (outputFile.contains(".")) {
+                StringBuilder sb = new StringBuilder(outputFile);
+                sb.insert(outputFile.lastIndexOf('.'), fileNameSuffix);
+                return Paths.get(sb.toString());
+            }
             return Paths.get(outputFile + fileNameSuffix);
         }
         return Paths.get(outputFile);
