@@ -14,7 +14,7 @@ public class InputFilePathChecker extends ArgChecker {
     }
 
     @Override
-    public void checkOptionValue(List<String> optionValues) throws InvalidInputArgException {
+    protected void checkOptionValue(List<String> optionValues) throws InvalidInputArgException {
         Predicate<List<String>> canReadFiles = values -> values.stream()
                 .map(Paths::get)
                 .allMatch(path -> Files.isRegularFile(path) && Files.isReadable(path));

@@ -6,12 +6,16 @@ import org.apache.logging.log4j.Logger;
 import ru.siberteam.checker.ArgChecker;
 import ru.siberteam.checker.InputFilePathChecker;
 import ru.siberteam.checker.OutputFilePathChecker;
+import ru.siberteam.checker.UrlChecker;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Args {
     private static final Logger LOG = LogManager.getLogger(Args.class);
@@ -20,18 +24,26 @@ public class Args {
     private CommandLine cmd;
 
     public Args() {
-        options.addOption(Option.builder("i")
-                .desc("Input file names")
-                .longOpt("inputFiles")
-                .required()
+        OptionGroup optionGroup = new OptionGroup();
+        optionGroup.setRequired(true);
+        optionGroup.addOption(Option.builder("u")
+                .desc("Enter a list of URLs")
+                .longOpt("URLs")
                 .hasArgs()
                 .build());
+        optionGroup.addOption(new Option("i", "inputFile", true, "Input file name with URLs"));
+        options.addOptionGroup(optionGroup);
         options.addRequiredOption("o", "outputFile", true, "Output file name");
     }
 
     private Map<String, ArgChecker> mapChecker() {
         Map<String, ArgChecker> checkerMap = new HashMap<>();
-        checkerMap.put("i", new InputFilePathChecker("i"));
+        if (cmd.hasOption("u")) {
+            checkerMap.put("u", new UrlChecker("u"));
+        }
+        if (cmd.hasOption("i")) {
+            checkerMap.put("i", new InputFilePathChecker("i"));
+        }
         checkerMap.put("o", new OutputFilePathChecker("o"));
         return checkerMap;
     }
@@ -53,8 +65,35 @@ public class Args {
                 .allMatch(checker -> checker.check(cmd));
     }
 
-    public Set<String> getInputFiles() {
-        return Arrays.stream(cmd.getOptionValues("i"))
+    private URL createURL(String urlString) {
+        try {
+            return new URL(urlString);
+        } catch (MalformedURLException e) {
+            LOG.error("Error creating URL {}", urlString, e);
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private Set<String> getSetUrlStrings() {
+        if (cmd.hasOption("u")) {
+            return Arrays.stream(cmd.getOptionValues("u"))
+                    .collect(Collectors.toSet());
+        } else if (cmd.hasOption("i")) {
+            try (Stream<String> stringStream = Files.lines(Paths.get(cmd.getOptionValue("i")))) {
+                return stringStream
+                        .flatMap(str -> Arrays.stream(str.split(" ")))
+                        .collect(Collectors.toSet());
+            } catch (IOException e) {
+                LOG.error("Unsuccessful attempt to read file {}", cmd.getOptionValue("i"), e);
+                throw new IllegalStateException(e);
+            }
+        }
+        return new HashSet<>();
+    }
+
+    public Set<URL> getURLs() {
+        return getSetUrlStrings().stream()
+                .map(this::createURL)
                 .collect(Collectors.toSet());
     }
 

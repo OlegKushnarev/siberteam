@@ -3,7 +3,7 @@ package ru.siberteam;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ru.siberteam.arg.Args;
-import ru.siberteam.compiler.Compiler;
+import ru.siberteam.compiler.DictionaryMaker;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -17,11 +17,11 @@ public class Main {
         if (!programArgs.parse(args)) {
             System.exit(0);
         }
-        Compiler compiler = new Compiler();
+        DictionaryMaker dictionaryMaker = new DictionaryMaker();
         try {
-            Files.write(Paths.get(programArgs.getOutputFile()), compiler.compileDictionary(programArgs.getInputFiles()));
+            Files.write(Paths.get(programArgs.getOutputFile()), dictionaryMaker.makeDictionary(programArgs.getURLs()));
         } catch (IOException e) {
-            LOG.error("Unsuccessful attempt to write to file:", e);
+            LOG.error("Unsuccessful attempt to write to file {}", programArgs.getOutputFile(), e);
         }
     }
 }
