@@ -3,17 +3,18 @@ package ru.siberteam.arg;
 import org.apache.commons.cli.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ru.siberteam.checker.ArgChecker;
-import ru.siberteam.checker.InputFilePathChecker;
-import ru.siberteam.checker.OutputFilePathChecker;
-import ru.siberteam.checker.UrlChecker;
+import ru.siberteam.checker.*;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ForkJoinPool;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -34,6 +35,7 @@ public class Args {
         optionGroup.addOption(new Option("i", "inputFile", true, "Input file name with URLs"));
         options.addOptionGroup(optionGroup);
         options.addRequiredOption("o", "outputFile", true, "Output file name");
+        options.addOption("n", "numbersThreads", true, "Input number of threads.");
     }
 
     private Map<String, ArgChecker> mapChecker() {
@@ -45,6 +47,7 @@ public class Args {
             checkerMap.put("i", new InputFilePathChecker("i"));
         }
         checkerMap.put("o", new OutputFilePathChecker("o"));
+        checkerMap.put("n", new NumberChecker("n"));
         return checkerMap;
     }
 
@@ -74,11 +77,8 @@ public class Args {
         }
     }
 
-    private Set<String> getSetUrlStrings() {
-        if (cmd.hasOption("u")) {
-            return Arrays.stream(cmd.getOptionValues("u"))
-                    .collect(Collectors.toSet());
-        } else if (cmd.hasOption("i")) {
+    private Set<String> getUrlStrings() {
+        if (cmd.hasOption("i")) {
             try (Stream<String> stringStream = Files.lines(Paths.get(cmd.getOptionValue("i")))) {
                 return stringStream
                         .flatMap(str -> Arrays.stream(str.split(" ")))
@@ -88,16 +88,24 @@ public class Args {
                 throw new IllegalStateException(e);
             }
         }
-        return new HashSet<>();
+        return Arrays.stream(cmd.getOptionValues("u"))
+                .collect(Collectors.toSet());
     }
 
     public Set<URL> getURLs() {
-        return getSetUrlStrings().stream()
+        return getUrlStrings().stream()
                 .map(this::createURL)
                 .collect(Collectors.toSet());
     }
 
     public String getOutputFile() {
         return cmd.getOptionValue("o");
+    }
+
+    public ForkJoinPool getThreadPool() {
+        if (cmd.hasOption("n")) {
+            return new ForkJoinPool(Integer.parseInt(cmd.getOptionValue("n")));
+        }
+        return ForkJoinPool.commonPool();
     }
 }

@@ -3,7 +3,7 @@ package ru.siberteam;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ru.siberteam.arg.Args;
-import ru.siberteam.compiler.DictionaryMaker;
+import ru.siberteam.maker.DictionaryMaker;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -17,7 +17,7 @@ public class Main {
         if (!programArgs.parse(args)) {
             System.exit(0);
         }
-        DictionaryMaker dictionaryMaker = new DictionaryMaker();
+        DictionaryMaker dictionaryMaker = new DictionaryMaker(programArgs.getThreadPool());
         try {
             Files.write(Paths.get(programArgs.getOutputFile()), dictionaryMaker.makeDictionary(programArgs.getURLs()));
         } catch (IOException e) {

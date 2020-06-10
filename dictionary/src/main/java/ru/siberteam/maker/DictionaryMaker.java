@@ -1,4 +1,4 @@
-package ru.siberteam.compiler;
+package ru.siberteam.maker;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -11,27 +11,29 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ForkJoinPool;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class DictionaryMaker {
     private static final Logger LOG = LogManager.getLogger(DictionaryMaker.class);
 
-    private Stream<String> russianWords(String word) {
-        String regex = "(^[а-яА-ЯёЁ]{3,}$)";
-        Pattern pattern = Pattern.compile(regex);
-        return Arrays.stream(word.split(" "))
-                .map(str -> str.replaceAll("[.,/#!$%^&*;:{}=\\-_`~()«»\"]", ""))
-                .filter(pattern.asPredicate());
+    private ForkJoinPool threadPool;
+
+    public DictionaryMaker(ForkJoinPool threadPool) {
+        this.threadPool = threadPool;
     }
 
     private Set<String> getUniqueWords(URL url) {
         try (InputStream stringStream = url.openStream();
              BufferedReader reader = new BufferedReader(new InputStreamReader(stringStream))) {
+            String regex = "(^[а-яё]{3,}$)";
+            Pattern pattern = Pattern.compile(regex);
             return reader.lines()
                     .map(String::toLowerCase)
-                    .flatMap(this::russianWords)
+                    .flatMap(str -> Arrays.stream(str.split("[.,/#!$%^&*;:{}=\\-_`~()«»\" ]")))
+                    .filter(pattern.asPredicate())
                     .collect(Collectors.toSet());
         } catch (IOException e) {
             LOG.error("Unsuccessful attempt to read a file:", e);
@@ -40,9 +42,13 @@ public class DictionaryMaker {
     }
 
     public Set<String> makeDictionary(Set<URL> urls) {
-        return urls.parallelStream()
-                .unordered()
-                .flatMap(url -> getUniqueWords(url).stream())
-                .collect(Collectors.toCollection(TreeSet::new));
+        try {
+            return threadPool.submit(() -> urls.parallelStream()
+                    .flatMap(url -> getUniqueWords(url).stream())
+                    .collect(Collectors.toCollection(TreeSet::new))).get();
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("Error in threads.", e);
+            throw new IllegalStateException(e);
+        }
     }
 }
