@@ -17,7 +17,7 @@ public class Main {
         if (!programArgs.parse(args)) {
             System.exit(0);
         }
-        DictionaryMaker dictionaryMaker = new DictionaryMaker(programArgs.getThreadPool());
+        DictionaryMaker dictionaryMaker = new DictionaryMaker(programArgs.getNumberThreads());
         try {
             Files.write(Paths.get(programArgs.getOutputFile()), dictionaryMaker.makeDictionary(programArgs.getURLs()));
         } catch (IOException e) {

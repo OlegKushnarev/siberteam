@@ -102,10 +102,17 @@ public class Args {
         return cmd.getOptionValue("o");
     }
 
-    public ForkJoinPool getThreadPool() {
+    public int getNumberThreads() {
         if (cmd.hasOption("n")) {
-            return new ForkJoinPool(Integer.parseInt(cmd.getOptionValue("n")));
+            return Integer.parseInt(cmd.getOptionValue("n"));
         }
-        return ForkJoinPool.commonPool();
+        return -1;
     }
+
+//    public ForkJoinPool getThreadPool() {
+//        if (cmd.hasOption("n")) {
+//            return new ForkJoinPool(Integer.parseInt(cmd.getOptionValue("n")));
+//        }
+//        return ForkJoinPool.commonPool();
+//    }
 }
